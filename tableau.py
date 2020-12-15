@@ -282,6 +282,7 @@ class Tableau():
                     self.nombre_cases_sans_mine_a_devoiler -= 1
                     case_xy.devoiler()
 
+
     def contient_mine(self, rangee_x, colonne_y):
         """
         Méthode qui vérifie si la case dont les coordonnées sont reçues en argument contient une mine.
