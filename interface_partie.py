@@ -99,9 +99,6 @@ class InterfacePartie(Tk):
         self.countdown.configure(text=self.base_string_countdown + restant + "s")
         self.after(1000, self.contre_la_monte)
 
-
-
-
     def devoiler_case(self, event):
         bouton = event.widget
         self.compteur_tour()
@@ -189,13 +186,57 @@ class InterfacePartie(Tk):
         B1 = ttk.Button(popup, text="Ok :)", command=self.quit)
         B1.pack()
 
-
     def nouvelle_partie(self):
         self.tableau_mines = Tableau()
 
         for bouton in self.dictionnaire_boutons.values():
             bouton['text'] = " "
 
+        self.fenetre_dialogue = Tk()
+        self.fenetre_dialogue.resizable(width=False, height=False)
+        self.fenetre_dialogue.wm_title("Nouvelle partie")
+        
+        # Les widgets de la fenetre dialogue 
+        ttk.Label(self.fenetre_dialogue, text='Entrez le numéro de colonne').grid(row=0, column=0, pady=10)
+        self.entree_colonne = ttk.Entry(self.fenetre_dialogue)
+        self.entree_colonne.grid(row=0, column=1, padx=10)
+        ttk.Label(self.fenetre_dialogue, text='Entrez le numéro de ligne').grid(row=1, column=0, pady=10)
+        self.entree_ligne = ttk.Entry(self.fenetre_dialogue)
+        self.entree_ligne.grid(row=1, column=1, padx=10)
+        ttk.Label(self.fenetre_dialogue, text='Entrez le nombre de mines').grid(row=2, column=0, pady=10)
+        self.entree_nombre_mines = ttk.Entry(self.fenetre_dialogue)
+        self.entree_nombre_mines.grid(row=2, column=1, padx=10)        
+        ttk.Button(self.fenetre_dialogue, text="Commencer!", command=self.fermer).grid(row=3, column=0, pady=10)
+        
+        self.wait_window(self.fenetre_dialogue)
+
+    def fermer(self):
+        # On sauvegarde le contenu des Entry dans les attributs
+        self.entree_colonne = int(self.entree_colonne.get())
+        self.entree_ligne = int(self.entree_ligne.get())
+        self.entree_nombre_mines = int(self.entree_nombre_mines.get())
+                
+        self.fenetre_dialogue.destroy()
+        
+        self.tableau_mines = Tableau(self.entree_ligne,self.entree_colonne,self.entree_nombre_mines)
+        
+        self.cadre.destroy()
+        self.cadre = Frame(self)
+        self.cadre.grid(padx=10, pady=10)
+
+        self.partie_terminee = False
+        self.dictionnaire_boutons = {}
+
+        for i in range(self.tableau_mines.dimension_rangee):
+            for j in range(self.tableau_mines.dimension_colonne):
+                bouton = BoutonCase(self.cadre, i+1, j+1)
+                bouton.grid(row=i, column=j)
+                bouton.bind('<Button-1>', self.devoiler_case)
+                bouton['bg'] = "#737373"
+                self.dictionnaire_boutons[(i+1, j+1)] = bouton
+                
+        for bouton in self.dictionnaire_boutons.values():
+            bouton['text'] = " "
     def compteur_tour(self):
         self.tour += 1
         compte = "Nombre de tours joués = % 2d" % self.tour
@@ -216,10 +257,6 @@ class InterfacePartie(Tk):
         B2.pack()
         label = ttk.Label(popup, text="Le fichier sera sauvegardé dans le même répertoire que principal.py", font= ("Verdana", 8))
         label.pack(side="bottom", pady=10)
-
-
-
-
 
     def quitter(self):
         popup = Tk()
@@ -250,5 +287,3 @@ class InterfacePartie(Tk):
         label.pack(side="top", fill="x", pady=10)
         B1 = ttk.Button(popup, text="Retour au jeu", command=popup.destroy)
         B1.pack(side="bottom")
-
-
