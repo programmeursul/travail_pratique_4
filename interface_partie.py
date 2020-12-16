@@ -35,6 +35,7 @@ class InterfacePartie(Tk):
         bouton_save.grid(row=1, column=0)
 
         self.tour = 0
+        self.compteur_tour()
         #labelVar = StringVar()
         #compte = "Nombre de tours joués = 0"
         #labelVar.set(compte)
@@ -125,7 +126,6 @@ class InterfacePartie(Tk):
         if self.tableau_mines.nombre_cases_sans_mine_a_devoiler == 0:
             self.victoire()
 
-
     def color_choser(self,nb_voisins):
         if nb_voisins == 0:
             color = "#33cc33"
@@ -151,8 +151,6 @@ class InterfacePartie(Tk):
 
         return color
 
-
-
     def defaite(self):
 
         for i in range(self.tableau_mines.dimension_rangee):
@@ -173,9 +171,12 @@ class InterfacePartie(Tk):
         NORM_FONT = ("Verdana", 10)
         label = ttk.Label(popup, text=msg, font=NORM_FONT)
         label.pack(side="top", fill="x", pady=10)
-        B1 = ttk.Button(popup, text="Ok :(", command=self.quit)
+        B1 = ttk.Button(popup, text="Ok :(", command=lambda:self.ferme_fenetre_dialogue(popup))
         B1.pack()
 
+    def close_window(self, window):
+        self.window.destroy()
+        
     def victoire(self):
         popup = Tk()
         popup.wm_title("Victoire!")
@@ -183,15 +184,10 @@ class InterfacePartie(Tk):
         NORM_FONT = ("Verdana", 10)
         label = ttk.Label(popup, text=msg, font=NORM_FONT)
         label.pack(side="top", fill="x", pady=10)
-        B1 = ttk.Button(popup, text="Ok :)", command=self.quit)
+        B1 = ttk.Button(popup, text="Ok :)", command=lambda:self.ferme_fenetre_dialogue(popup))
         B1.pack()
 
     def nouvelle_partie(self):
-        self.tableau_mines = Tableau()
-
-        for bouton in self.dictionnaire_boutons.values():
-            bouton['text'] = " "
-
         self.fenetre_dialogue = Tk()
         self.fenetre_dialogue.resizable(width=False, height=False)
         self.fenetre_dialogue.wm_title("Nouvelle partie")
@@ -206,11 +202,11 @@ class InterfacePartie(Tk):
         ttk.Label(self.fenetre_dialogue, text='Entrez le nombre de mines').grid(row=2, column=0, pady=10)
         self.entree_nombre_mines = ttk.Entry(self.fenetre_dialogue)
         self.entree_nombre_mines.grid(row=2, column=1, padx=10)        
-        ttk.Button(self.fenetre_dialogue, text="Commencer!", command=self.fermer).grid(row=3, column=0, pady=10)
+        ttk.Button(self.fenetre_dialogue, text="Commencer!", command=self.commencer).grid(row=3, column=0, pady=10)
         
         self.wait_window(self.fenetre_dialogue)
 
-    def fermer(self):
+    def commencer(self):
         # On sauvegarde le contenu des Entry dans les attributs
         self.entree_colonne = int(self.entree_colonne.get())
         self.entree_ligne = int(self.entree_ligne.get())
@@ -223,8 +219,10 @@ class InterfacePartie(Tk):
         self.cadre.destroy()
         self.cadre = Frame(self)
         self.cadre.grid(padx=10, pady=10)
-
-        self.partie_terminee = False
+        
+        self.tour = 0
+        self.compteur_tour()
+        self.start = time.time()
         self.dictionnaire_boutons = {}
 
         for i in range(self.tableau_mines.dimension_rangee):
@@ -237,13 +235,14 @@ class InterfacePartie(Tk):
                 
         for bouton in self.dictionnaire_boutons.values():
             bouton['text'] = " "
+    
     def compteur_tour(self):
-        self.tour += 1
         compte = "Nombre de tours joués = % 2d" % self.tour
         compteur = Label(self, text=compte)
         compteur['text'] = compte
         compteur.grid(row=2, column=4)
-
+        self.tour += 1
+         
     def sauvegarder(self):
         popup = Tk()
         popup.wm_title("Sauvegarder")
@@ -265,12 +264,17 @@ class InterfacePartie(Tk):
         NORM_FONT = ("Verdana", 10)
         label = ttk.Label(popup, text=msg, font=NORM_FONT)
         label.pack(side="top", fill="x", pady=10)
-        B1 = ttk.Button(popup, text="Oui", command=self.quit)
+        B1 = ttk.Button(popup, text="Oui", command=lambda:[self.ferme_fenetre_dialogue(popup),self.ferme_fenetre_principale()])
         B1.pack(side="left")
-        B2 = ttk.Button(popup, text="Non", command=popup.destroy)
+        B2 = ttk.Button(popup, text="Non", command=lambda:self.ferme_fenetre_dialogue(popup))
         B2.pack(side="right")
 
+    def ferme_fenetre_dialogue(self, window):
+        window.destroy()
 
+    def ferme_fenetre_principale(self):
+        self.destroy()
+        
     def instructions(self):
         popup = Tk()
         popup.wm_title("Règles")
