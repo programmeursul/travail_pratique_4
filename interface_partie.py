@@ -18,7 +18,8 @@ class InterfacePartie(Tk):
         self.resizable(0,0)
 
         self.tableau_mines = Tableau()
-
+        self.couleur_tableau = "#737373"
+        self.couleur_mine = "#ff0000"
         bouton_frame = Frame(self)
         bouton_frame.grid()
 
@@ -36,6 +37,9 @@ class InterfacePartie(Tk):
 
         bouton_charger = Button(bouton_frame, text="Charger", command=self.charger_popup)
         bouton_charger.grid(row=1, column=1)
+
+        bouton_configurer = Button(bouton_frame, text="Configurer", command=self.configurer_popup)
+        bouton_configurer.grid(row=1, column=2)
 
         self.tour = 0
         self.compteur_tour()
@@ -68,7 +72,7 @@ class InterfacePartie(Tk):
                 bouton = BoutonCase(self.cadre, i+1, j+1)
                 bouton.grid(row=i, column=j)
                 bouton.bind('<Button-1>', self.devoiler_case)
-                bouton['bg'] = "#737373"
+                bouton['bg'] = self.couleur_tableau
                 self.dictionnaire_boutons[(i+1, j+1)] = bouton
 
     def update_clock(self):
@@ -104,9 +108,10 @@ class InterfacePartie(Tk):
         bouton = event.widget
         self.compteur_tour()
         case = self.tableau_mines.obtenir_case(bouton.rangee_x, bouton.colonne_y)
+        print(self.couleur_mine)
         if case.est_minee:
             bouton['text'] = "M"
-            bouton['bg'] = "red"
+            bouton['bg'] = self.couleur_mine
             self.defaite()
         else:
             if not self.tableau_mines.contient_mine(bouton.rangee_x, bouton.colonne_y):
@@ -162,7 +167,7 @@ class InterfacePartie(Tk):
                     bouton = self.dictionnaire_boutons[i+1, j+1]
                     if case.est_minee:
                         bouton['text'] = "M"
-                        bouton['bg'] = "red"
+                        bouton['bg'] = self.couleur_mine
                     else:
                         bouton['text'] = case.nombre_mines_voisines
                         bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
@@ -232,7 +237,7 @@ class InterfacePartie(Tk):
                 bouton = BoutonCase(self.cadre, i+1, j+1)
                 bouton.grid(row=i, column=j)
                 bouton.bind('<Button-1>', self.devoiler_case)
-                bouton['bg'] = "#737373"
+                bouton['bg'] = self.couleur_tableau
                 self.dictionnaire_boutons[(i+1, j+1)] = bouton
                 
         for bouton in self.dictionnaire_boutons.values():
@@ -369,3 +374,39 @@ class InterfacePartie(Tk):
         label.pack(side="top", fill="x", pady=10)
         B1 = ttk.Button(popup, text="Retour au jeu", command=popup.destroy)
         B1.pack(side="bottom")
+
+    def configurer_popup(self):
+        self.parametres_fenetre = Tk()
+        self.parametres_fenetre.resizable(width=False, height=False)
+        self.parametres_fenetre.wm_title("Paramètres")
+        # Les widgets de la fenetre paramètres
+        # Tableau
+        ttk.Label(self.parametres_fenetre, text='Couleur tableau').grid(row=0, column=0, pady=10)
+        self.frameRadioButton = Frame(self.parametres_fenetre)       
+        self.frameRadioButton.grid(row=0, column=1)        
+        self.varTableau = StringVar(self.frameRadioButton,self.couleur_tableau)
+        self.radioButtonGris = ttk.Radiobutton(self.frameRadioButton, text="Grise", variable=self.varTableau, value='#737373', command=self.selectionner_couleur_tableau)
+        self.radioButtonGris.grid(row=0, column=0)
+        self.radioButtonBlanc = ttk.Radiobutton(self.frameRadioButton, text="Blanc", variable=self.varTableau, value='#FFFFFF', command=self.selectionner_couleur_tableau)
+        self.radioButtonBlanc.grid(row=0, column=1)
+        # Mines
+        ttk.Label(self.parametres_fenetre, text='Couleur mines').grid(row=1, column=0, pady=10)
+        self.frameRadioButtonMine = Frame(self.parametres_fenetre)       
+        self.frameRadioButtonMine.grid(row=1, column=1)        
+        self.varMine = StringVar(self.frameRadioButtonMine,self.couleur_mine)
+        self.radioButtonRouge = ttk.Radiobutton(self.frameRadioButtonMine, text="Rouge", variable=self.varMine, value='#ff0000', command=self.selectionner_couleur_mine)
+        self.radioButtonRouge.grid(row=1, column=0)
+        self.radioButtonRose = ttk.Radiobutton(self.frameRadioButtonMine, text="Rose", variable=self.varMine, value='#ffc0cb', command=self.selectionner_couleur_mine)
+        self.radioButtonRose.grid(row=1, column=1)
+                        
+    def selectionner_couleur_tableau(self):
+        if self.varTableau.get() == "#737373":
+            self.couleur_tableau = "#737373"
+        elif self.varTableau.get() == "#FFFFFF":
+            self.couleur_tableau = "#FFFFFF"
+
+    def selectionner_couleur_mine(self):
+        if self.varMine.get() == "#ff0000":
+            self.couleur_mine = "#ff0000"
+        elif self.varMine.get() == "#ffc0cb":
+            self.couleur_mine = "#ffc0cb"
