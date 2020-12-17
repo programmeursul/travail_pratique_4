@@ -37,9 +37,6 @@ class InterfacePartie(Tk):
         bouton_charger = Button(bouton_frame, text="Charger", command=self.charger_popup)
         bouton_charger.grid(row=1, column=1)
 
-
-
-
         self.tour = 0
         self.compteur_tour()
         #labelVar = StringVar()
@@ -53,19 +50,13 @@ class InterfacePartie(Tk):
         self.horloge = ttk.Label(text=self.base_string_clock)
         self.horloge.grid(row=0, column=4)
 
-
         self.temps_total = 1000
         self.base_string_countdown = "Temp restant ="
         self.countdown = ttk.Label(text=self.base_string_countdown)
         self.countdown.grid(row=1, column=4)
 
-
-
         self.update_clock()
         self.contre_la_montre()
-
-
-
 
         self.cadre = Frame(self)
         self.cadre.grid(padx=10, pady=10)
@@ -87,8 +78,6 @@ class InterfacePartie(Tk):
         self.horloge.configure(text=self.base_string_clock + elapsed + "s")
         if int(now - start) < self.temps_total:
             self.after(1000, self.update_clock)
-
-
 
     def contre_la_montre(self):
         now = time.time()
@@ -119,26 +108,26 @@ class InterfacePartie(Tk):
             bouton['text'] = "M"
             bouton['bg'] = "red"
             self.defaite()
+        else:
+            if not self.tableau_mines.contient_mine(bouton.rangee_x, bouton.colonne_y):
+                case = self.tableau_mines.obtenir_case(bouton.rangee_x, bouton.colonne_y)
+                case.devoiler()
+                self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
+                bouton['text'] = case.nombre_mines_voisines
+                bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
+            if case.nombre_mines_voisines == 0:
+                voisins = self.tableau_mines.obtenir_voisins(bouton.rangee_x, bouton.colonne_y)
+                for case_voisin in voisins:
+                    case = self.tableau_mines.obtenir_case(case_voisin[0], case_voisin[1])
+                    if not case.est_devoilee:
+                        case.devoiler()
+                        bouton = self.dictionnaire_boutons[case_voisin[0],case_voisin[1]]
+                        self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
+                        bouton['text'] = case.nombre_mines_voisines
+                        bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
 
-        if not self.tableau_mines.contient_mine(bouton.rangee_x, bouton.colonne_y):
-            case = self.tableau_mines.obtenir_case(bouton.rangee_x, bouton.colonne_y)
-            case.devoiler()
-            self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
-            bouton['text'] = case.nombre_mines_voisines
-            bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
-        if case.nombre_mines_voisines == 0:
-            voisins = self.tableau_mines.obtenir_voisins(bouton.rangee_x, bouton.colonne_y)
-            for case_voisin in voisins:
-                case = self.tableau_mines.obtenir_case(case_voisin[0], case_voisin[1])
-                if not case.est_devoilee:
-                    case.devoiler()
-                    bouton = self.dictionnaire_boutons[case_voisin[0],case_voisin[1]]
-                    self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
-                    bouton['text'] = case.nombre_mines_voisines
-                    bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
-
-        if self.tableau_mines.nombre_cases_sans_mine_a_devoiler == 0:
-            self.victoire()
+            if self.tableau_mines.nombre_cases_sans_mine_a_devoiler == 0:
+                self.victoire()
 
     def color_choser(self,nb_voisins):
         if nb_voisins == 0:
