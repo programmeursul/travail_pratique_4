@@ -135,6 +135,7 @@ class InterfacePartie(Tk):
                 self.victoire()
 
     def color_choser(self,nb_voisins):
+        color = "#33cc33"
         if nb_voisins == 0:
             color = "#33cc33"
 
@@ -305,7 +306,7 @@ class InterfacePartie(Tk):
         colonne = int(content[1])
 
         self.tableau_mines = Tableau(rangee,colonne,0)
-        line = 3
+        line = 4
 
         for i in range(self.tableau_mines.dimension_rangee):
             for j in range(self.tableau_mines.dimension_colonne):
@@ -316,27 +317,27 @@ class InterfacePartie(Tk):
                 bouton.bind('<Button-1>', self.devoiler_case)
                 bouton['bg'] = "#737373"
                 self.dictionnaire_boutons[(i+1 , j+1 )] = bouton
+
                 mine = content[line]
+
+                etat = content[line+1]
+
+
+                charactere = content[line+2]
+                print(charactere)
+                if charactere != "M":
+                    case.nombre_mines_voisines=str(charactere)
+                    
                 case.est_minee = mine == "True"
-                if case.est_minee == True:
-                    print(case.est_minee)
-                line += 2
+                condition = etat == "True \n"
 
-        line = 4
+                if etat == "True":
 
-        for i in range(self.tableau_mines.dimension_rangee):
-            for j in range(self.tableau_mines.dimension_colonne):
-                bouton = self.dictionnaire_boutons[(i+1 , j+1 )]
-                case = self.tableau_mines.obtenir_case(i + 1, j + 1)
-                devoilee = content[line]
-                case.est_devoilee = devoilee=="True"
-                if case.est_devoilee==True:
-                    voisins = self.tableau_mines.obtenir_voisins(i+1, j+1)
-                    for voisin in voisins:
-                        self.tableau_mines.dictionnaire_cases[voisin].ajouter_une_mine_voisine()
-                    bouton['text'] = case.nombre_mines_voisines
+                    bouton['text'] = charactere
                     bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
-                line += 2
+                line += 3
+
+
 
         f.close
 
