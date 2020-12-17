@@ -31,8 +31,14 @@ class InterfacePartie(Tk):
         bouton_info = Button(bouton_frame, text="Instructions", command=self.instructions)
         bouton_info.grid(row=0, column=2)
 
-        bouton_save = Button(bouton_frame, text="Sauvegarder",command=self.sauvegarder)
+        bouton_save = Button(bouton_frame, text="Sauvegarder",command=self.sauvegarder_popup)
         bouton_save.grid(row=1, column=0)
+
+        bouton_charger = Button(bouton_frame, text="Charger", command=self.charger_popup)
+        bouton_charger.grid(row=1, column=1)
+
+
+
 
         self.tour = 0
         self.compteur_tour()
@@ -56,7 +62,10 @@ class InterfacePartie(Tk):
 
 
         self.update_clock()
-        self.contre_la_monte()  # Enlever d'ici et placer dans une condition if pour choisir le type de jeux
+        self.contre_la_montre()
+
+
+
 
         self.cadre = Frame(self)
         self.cadre.grid(padx=10, pady=10)
@@ -79,7 +88,9 @@ class InterfacePartie(Tk):
         if int(now - start) < self.temps_total:
             self.after(1000, self.update_clock)
 
-    def contre_la_monte(self):
+
+
+    def contre_la_montre(self):
         now = time.time()
         elapsed_2 = int(now - self.start)
         restant = self.temps_total-elapsed_2
@@ -98,7 +109,7 @@ class InterfacePartie(Tk):
             B1.pack()
             self.countdown.configure(text=self.base_string_countdown + restant + "s", foreground="red")
         self.countdown.configure(text=self.base_string_countdown + restant + "s")
-        self.after(1000, self.contre_la_monte)
+        self.after(1000, self.contre_la_montre)
 
     def devoiler_case(self, event):
         bouton = event.widget
@@ -110,6 +121,8 @@ class InterfacePartie(Tk):
             self.defaite()
 
         if not self.tableau_mines.contient_mine(bouton.rangee_x, bouton.colonne_y):
+            case = self.tableau_mines.obtenir_case(bouton.rangee_x, bouton.colonne_y)
+            case.devoiler()
             self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
             bouton['text'] = case.nombre_mines_voisines
             bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
@@ -118,6 +131,7 @@ class InterfacePartie(Tk):
             for case_voisin in voisins:
                 case = self.tableau_mines.obtenir_case(case_voisin[0], case_voisin[1])
                 if not case.est_devoilee:
+                    case.devoiler()
                     bouton = self.dictionnaire_boutons[case_voisin[0],case_voisin[1]]
                     self.tableau_mines.nombre_cases_sans_mine_a_devoiler -= 1
                     bouton['text'] = case.nombre_mines_voisines
@@ -243,19 +257,91 @@ class InterfacePartie(Tk):
         compteur.grid(row=2, column=4)
         self.tour += 1
          
-    def sauvegarder(self):
+    def sauvegarder_popup(self):
         popup = Tk()
         popup.wm_title("Sauvegarder")
         NORM_FONT = ("Verdana", 10)
         label = ttk.Label(popup, text="Nom du fichier :", font=NORM_FONT)
         label.pack(side="top", pady=10)
-        entree = StringVar()
+        entree = StringVar(popup)
         B1 = ttk.Entry(popup,textvariable = entree)
         B1.pack()
-        B2 = ttk.Button(popup, text="Sauvegarder", command=popup.destroy)
+        B2 = ttk.Button(popup, text="Sauvegarder", command=lambda :[self.sauvegarder(entree),popup.destroy()])
         B2.pack()
         label = ttk.Label(popup, text="Le fichier sera sauvegardé dans le même répertoire que principal.py", font= ("Verdana", 8))
         label.pack(side="bottom", pady=10)
+
+    def sauvegarder(self,nom):
+        file_name = nom.get()
+        file_name = file_name +".txt"
+        f = open(file_name, "w+")
+        f.write(str(self.tableau_mines.dimension_rangee)+"\n")
+        f.write(str(self.tableau_mines.dimension_colonne)+"\n\n")
+
+        for i in range(self.tableau_mines.dimension_rangee):
+            for j in range(self.tableau_mines.dimension_colonne):
+                case = self.tableau_mines.obtenir_case(i+1, j+1)
+                f.write(str(case.est_minee) + "\n")
+                f.write(str(case.est_devoilee) + "\n")
+
+        f.close
+
+    def charger_popup(self):
+        popup = Tk()
+        popup.wm_title("Charger")
+        NORM_FONT = ("Verdana", 10)
+        label = ttk.Label(popup, text="Nom du fichier :", font=NORM_FONT)
+        label.pack(side="top", pady=10)
+        entree = StringVar(popup)
+        B1 = ttk.Entry(popup,textvariable = entree)
+        B1.pack()
+        B2 = ttk.Button(popup, text="Charger", command=lambda :[self.charger(entree),popup.destroy()])
+        B2.pack()
+
+
+    def charger(self,nom):
+        file_name = nom.get()
+        file_name = file_name +".txt"
+        f = open(file_name, "r")
+        content = f.read().splitlines()
+        rangee = int(content[0])
+        colonne = int(content[1])
+
+        self.tableau_mines = Tableau(rangee,colonne,0)
+        line = 3
+
+        for i in range(self.tableau_mines.dimension_rangee):
+            for j in range(self.tableau_mines.dimension_colonne):
+                case = self.tableau_mines.obtenir_case(i+1, j+1)
+
+                bouton = BoutonCase(self.cadre, i+1 , j+1 )
+                bouton.grid(row=i, column=j)
+                bouton.bind('<Button-1>', self.devoiler_case)
+                bouton['bg'] = "#737373"
+                self.dictionnaire_boutons[(i+1 , j+1 )] = bouton
+                mine = content[line]
+                case.est_minee = mine == "True"
+                if case.est_minee == True:
+                    print(case.est_minee)
+                line += 2
+
+        line = 4
+
+        for i in range(self.tableau_mines.dimension_rangee):
+            for j in range(self.tableau_mines.dimension_colonne):
+                bouton = self.dictionnaire_boutons[(i+1 , j+1 )]
+                case = self.tableau_mines.obtenir_case(i + 1, j + 1)
+                devoilee = content[line]
+                case.est_devoilee = devoilee=="True"
+                if case.est_devoilee==True:
+                    voisins = self.tableau_mines.obtenir_voisins(i+1, j+1)
+                    for voisin in voisins:
+                        self.tableau_mines.dictionnaire_cases[voisin].ajouter_une_mine_voisine()
+                    bouton['text'] = case.nombre_mines_voisines
+                    bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
+                line += 2
+
+        f.close
 
     def quitter(self):
         popup = Tk()
