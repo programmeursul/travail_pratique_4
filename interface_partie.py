@@ -162,7 +162,6 @@ class InterfacePartie(Tk):
         if nb_voisins == 6:
             color = "black"
 
-
         return color
 
     def defaite(self):
@@ -275,15 +274,19 @@ class InterfacePartie(Tk):
         file_name = nom.get()
         file_name = file_name +".txt"
         f = open(file_name, "w+")
-        f.write(str(self.tableau_mines.dimension_rangee)+"\n")
-        f.write(str(self.tableau_mines.dimension_colonne)+"\n\n")
-
+        f.write(str(self.tableau_mines.dimension_rangee) +"\n")
+        f.write(str(self.tableau_mines.dimension_colonne) +"\n")
+        f.write(str(self.tableau_mines.nombre_mines) +"\n\n")
+        
         for i in range(self.tableau_mines.dimension_rangee):
             for j in range(self.tableau_mines.dimension_colonne):
                 case = self.tableau_mines.obtenir_case(i+1, j+1)
                 f.write(str(case.est_minee) + "\n")
                 f.write(str(case.est_devoilee) + "\n")
-
+                if case.est_minee:
+                    f.write("M" + "\n")
+                else:
+                    f.write(str(case.nombre_mines_voisines) + "\n")              
         f.close
 
     def charger_popup(self):
