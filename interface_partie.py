@@ -108,7 +108,6 @@ class InterfacePartie(Tk):
         bouton = event.widget
         self.compteur_tour()
         case = self.tableau_mines.obtenir_case(bouton.rangee_x, bouton.colonne_y)
-        print(self.couleur_mine)
         if case.est_minee:
             bouton['text'] = "M"
             bouton['bg'] = self.couleur_mine
@@ -399,6 +398,7 @@ class InterfacePartie(Tk):
         self.radioButtonRouge.grid(row=1, column=0)
         self.radioButtonRose = ttk.Radiobutton(self.frameRadioButtonMine, text="Rose", variable=self.varMine, value='#ffc0cb', command=self.selectionner_couleur_mine)
         self.radioButtonRose.grid(row=1, column=1)
+        ttk.Button(self.parametres_fenetre, text="OK", command=lambda:self.ferme_fenetre_dialogue(self.parametres_fenetre)).grid(row=3, column=0, pady=10)
                         
     def selectionner_couleur_tableau(self):
         if self.varTableau.get() == "#737373":
