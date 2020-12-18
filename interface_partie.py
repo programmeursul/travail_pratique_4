@@ -8,7 +8,6 @@ from bouton_case import BoutonCase
 from tkinter import ttk
 import time
 
-
 class InterfacePartie(Tk):
     def __init__(self):
         super().__init__()
@@ -43,11 +42,6 @@ class InterfacePartie(Tk):
 
         self.tour = 0
         self.compteur_tour()
-        #labelVar = StringVar()
-        #compte = "Nombre de tours joués = 0"
-        #labelVar.set(compte)
-        #ompteur = Label(bouton_frame, textvariable = labelVar)
-        #compteur.grid(row=0, column=3)
 
         self.base_string_clock = "Temp écoulé ="
         self.start = time.time()
@@ -159,7 +153,6 @@ class InterfacePartie(Tk):
         return color
 
     def defaite(self):
-
         for i in range(self.tableau_mines.dimension_rangee):
             for j in range(self.tableau_mines.dimension_colonne):
                 case = self.tableau_mines.obtenir_case(i+1, j+1)
@@ -321,22 +314,17 @@ class InterfacePartie(Tk):
 
                 etat = content[line+1]
 
-
                 charactere = content[line+2]
-                print(charactere)
                 if charactere != "M":
                     case.nombre_mines_voisines=str(charactere)
                     
                 case.est_minee = mine == "True"
-                condition = etat == "True \n"
 
                 if etat == "True":
 
                     bouton['text'] = charactere
                     bouton['fg'] = self.color_choser(case.nombre_mines_voisines)
                 line += 3
-
-
 
         f.close
 
@@ -410,4 +398,4 @@ class InterfacePartie(Tk):
         if self.varMine.get() == "#ff0000":
             self.couleur_mine = "#ff0000"
         elif self.varMine.get() == "#ffc0cb":
-            self.couleur_mine = "#ffc0cb"
+           self.couleur_mine = "#ffc0cb"
